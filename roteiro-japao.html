@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }</style>
+<title>Tokyo, Kyoto &amp; Osaka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=Instrument+Sans:wght@400..600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Rascunho da página de roteiro (2026-10-10), mesmo visual do home-v2.
+     Estrutura seguindo "Página de roteiro" em estrutura-weroad.md.
+     Layout: hero com foto + bilhete de embarque; coluna de conteúdo + caixa de reserva fixa à direita. */
+  :root {
+    --paper: #edf0f1;
+    --surface: #ffffff;
+    --ink: #0f2333;
+    --muted: #4f606c;
+    --line: #c9d2d8;
+    --brass: #9c7019;
+    --sea: #2b6a73;
+    --torii: #b23a2a;      /* vermelho dos portais, só nos marcadores do mapa de rota */
+    --night: #0b1722;
+    --on-night: #f3efe6;
+    --on-night-muted: #b7c0c8;
+
+    --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+    --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+
+    --step-0: 1rem;
+    --step-1: 1.2rem;
+    --step-2: 1.6rem;
+    --step-3: clamp(1.9rem, 3.6vw, 2.6rem);
+    --step-4: clamp(2.4rem, 6.2vw, 4.6rem);
+    --gutter: clamp(16px, 4vw, 40px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #0c1720; --surface: #12212d; --ink: #e6ebee; --muted: #9caab4;
+      --line: #23343f; --brass: #d6a94e; --sea: #6fb3bb; --torii: #e0705e; --night: #060e15;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #0c1720; --surface: #12212d; --ink: #e6ebee; --muted: #9caab4;
+    --line: #23343f; --brass: #d6a94e; --sea: #6fb3bb; --torii: #e0705e; --night: #060e15;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 130px; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: var(--step-0); line-height: 1.6; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 500; line-height: 1.08; margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+  .wrap { max-width: 1200px; margin-inline: auto; padding-inline: var(--gutter); }
+  .label { font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: var(--brass); }
+  .tbd { font-family: var(--mono); font-size: .78rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
+  .sample { font-family: var(--mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--sea); border: 1px solid currentColor; border-radius: 3px; padding: 2px 7px; white-space: nowrap; vertical-align: middle; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5em; font: 600 .95rem/1 var(--body); text-decoration: none; cursor: pointer;
+         padding: 15px 26px; border-radius: 2px; border: 1px solid var(--brass); background: var(--brass); color: #fff; transition: background .2s, color .2s; }
+  .btn:hover { background: transparent; color: var(--brass); }
+  .btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn-ghost:hover { border-color: var(--brass); color: var(--brass); }
+
+  .draft { background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: .72rem; letter-spacing: .06em; text-align: center; padding: 7px var(--gutter); }
+
+  /* Cabeçalho */
+  header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--paper) 90%, transparent);
+           backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .nav { display: flex; align-items: center; gap: 28px; height: 70px; }
+  .mark { font-family: var(--display); font-size: 1.3rem; letter-spacing: .28em; text-decoration: none; white-space: nowrap; }
+  .mark b { font-weight: 500; font-style: italic; letter-spacing: .1em; color: var(--brass); }
+  .nav ul { display: flex; gap: 26px; list-style: none; margin: 0 0 0 auto; padding: 0; font-size: .92rem; }
+  .nav ul a { text-decoration: none; color: var(--muted); }
+  .nav ul a:hover { color: var(--ink); }
+  .nav .btn { padding: 11px 18px; font-size: .85rem; }
+
+  /* Hero */
+  .hero { position: relative; background: var(--night); color: var(--on-night); overflow: hidden; }
+  .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 35% 40%; }
+  .hero::before { content: ""; position: absolute; inset: 0;
+                  background: linear-gradient(90deg, rgba(6,12,22,.86) 0%, rgba(6,12,22,.55) 45%, rgba(6,12,22,.05) 75%),
+                              linear-gradient(0deg, rgba(6,12,22,.7) 0%, transparent 35%); }
+  .hero-inner { position: relative; display: grid; gap: 18px; padding-block: clamp(56px, 9vw, 110px) clamp(40px, 5vw, 56px); }
+  .crumbs { font-family: var(--mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--on-night-muted); display: flex; gap: 10px; flex-wrap: wrap; }
+  .crumbs a { text-decoration: none; }
+  .crumbs a:hover { color: var(--on-night); }
+  .hero h1 { font-size: var(--step-4); font-weight: 400; max-width: 14ch; }
+  .hero h1 em { font-style: italic; color: #f1d18f; }
+  .hero .lede { font-size: var(--step-1); color: #dfe3e6; max-width: 46ch; }
+  .hero .sample { color: #9fd3d9; }
+
+  /* Bilhete de embarque */
+  .pass { position: relative; display: grid; grid-template-columns: auto repeat(4, minmax(0, 1fr)); margin-top: clamp(28px, 4vw, 44px);
+          background: rgba(243,239,230,.96); color: #0f2333; border-radius: 6px; overflow: hidden; max-width: 920px; }
+  .pass > div { padding: 16px 20px; display: grid; gap: 4px; align-content: center; min-width: 0; }
+  .pass > div + div { border-left: 1.5px dashed #c9d2d8; }
+  .pass .k { font-family: var(--mono); font-size: .62rem; letter-spacing: .16em; text-transform: uppercase; color: #4f606c; }
+  .pass .v { font-size: 1rem; font-weight: 500; }
+  .pass .route { display: flex; align-items: center; gap: 12px; font-family: var(--mono); font-size: 1.35rem; font-weight: 500; letter-spacing: .08em; }
+  .pass .route i { width: 46px; height: 1px; background: #9aa6ae; position: relative; }
+  .pass .route i::after { content: "✈"; position: absolute; left: 50%; top: -.72em; transform: translateX(-50%); font-style: normal; font-size: .8rem; color: #9c7019; background: rgba(243,239,230,1); padding-inline: 3px; }
+  .pass .tbd { color: #4f606c; border-color: #b8c3ca; }
+
+  /* Abas da página */
+  .tabs { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 71px); z-index: 15; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .tabs ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; overflow-x: auto; scrollbar-width: none; }
+  .tabs a { display: block; padding-block: 15px; font-size: .9rem; text-decoration: none; color: var(--muted); white-space: nowrap; border-bottom: 2px solid transparent; }
+  .tabs a:hover { color: var(--ink); border-color: var(--brass); }
+
+  /* Corpo: conteúdo + reserva */
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: clamp(32px, 5vw, 72px); padding-block: clamp(40px, 6vw, 72px) clamp(72px, 10vw, 120px); align-items: start; }
+  .content { display: grid; gap: clamp(64px, 8vw, 96px); min-width: 0; }
+  .block { display: grid; gap: 22px; min-width: 0; }
+  .block > header, .block-head { position: static; background: none; backdrop-filter: none; border: 0; display: grid; gap: 10px; }
+  .block h2 { font-size: var(--step-3); }
+  .block .note { color: var(--muted); font-size: .92rem; max-width: 60ch; }
+  .prose { display: grid; gap: 14px; max-width: 64ch; }
+
+  /* Perfil da viagem */
+  .meters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 40px; margin: 0; }
+  .meters div { display: grid; gap: 6px; }
+  .meters dt { display: flex; justify-content: space-between; font-size: .92rem; }
+  .meters dt span { font-family: var(--mono); font-size: .74rem; color: var(--muted); }
+  .meters dd { margin: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .meters dd i { height: 6px; background: var(--line); border-radius: 1px; }
+  .meters dd i.on { background: var(--brass); }
+
+  /* Galeria */
+  .gallery { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: clamp(120px, 14vw, 170px); gap: 8px; }
+  .gallery figure { margin: 0; position: relative; overflow: hidden; background: var(--night); }
+  .gallery img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+  .gallery figure:hover img { transform: scale(1.04); }
+  .gallery figcaption { position: absolute; left: 10px; bottom: 8px; font-family: var(--mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+  .g1 { grid-column: span 4; grid-row: span 2; }
+  .g2, .g3 { grid-column: span 2; }
+  .g4, .g5, .g6 { grid-column: span 2; }
+
+  /* Mapa da rota */
+  .routemap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); position: relative; padding-top: 6px; }
+  .routemap::before { content: ""; position: absolute; left: 16.6%; right: 16.6%; top: 14px; height: 2px;
+                      background: repeating-linear-gradient(90deg, var(--torii) 0 10px, transparent 10px 16px); }
+  .stop { position: relative; display: grid; justify-items: center; gap: 6px; text-align: center; }
+  .stop::before { content: ""; width: 18px; height: 18px; border-radius: 50%; background: var(--paper); border: 3px solid var(--torii); position: relative; z-index: 1; }
+  .stop b { font-family: var(--display); font-size: var(--step-2); font-weight: 500; line-height: 1; }
+  .stop span { font-family: var(--mono); font-size: .72rem; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+
+  /* Dia a dia */
+  .days { border-top: 1px solid var(--line); }
+  .day { border-bottom: 1px solid var(--line); }
+  .day summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 72px minmax(0, 1fr) auto; gap: 16px; align-items: baseline; padding-block: 20px; }
+  .day summary::-webkit-details-marker { display: none; }
+  .day .n { font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: var(--brass); }
+  .day h3 { font-size: var(--step-1); font-weight: 500; }
+  .day .stay { font-family: var(--mono); font-size: .72rem; color: var(--muted); white-space: nowrap; }
+  .day summary::after { content: "+"; grid-column: 3; grid-row: 1; justify-self: end; font-family: var(--mono); color: var(--brass); display: none; }
+  .day-body { display: grid; gap: 14px; padding: 0 0 26px 88px; max-width: calc(64ch + 88px); color: var(--muted); }
+  .day-body .inc { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .86rem; color: var(--ink); }
+  .day-body .inc strong { font-family: var(--mono); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; }
+  .disclaimer { font-size: .86rem; color: var(--muted); }
+
+  /* Incluído / não incluído */
+  .ledger { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  .ledger h3 { font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--muted); padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+  .ledger ul { list-style: none; margin: 0; padding: 0; }
+  .ledger li { display: flex; justify-content: space-between; gap: 14px; padding-block: 12px; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .ledger li::before { content: "✓"; color: var(--sea); font-weight: 600; }
+  .ledger .no li::before { content: "–"; color: var(--muted); }
+  .ledger li span:first-of-type { flex: 1; min-width: 0; }
+  .ideas { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ideas span { padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: .88rem; background: var(--surface); }
+
+  /* Sanfonas (informações + FAQ) */
+  .acc details { border-bottom: 1px solid var(--line); }
+  .acc details:first-of-type { border-top: 1px solid var(--line); }
+  .acc summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; padding-block: 16px; font-weight: 500; }
+  .acc summary::-webkit-details-marker { display: none; }
+  .acc summary::after { content: "+"; font-family: var(--mono); color: var(--brass); }
+  .acc details[open] summary::after { content: "−"; }
+  .acc details > div { padding-bottom: 18px; color: var(--muted); display: grid; gap: 10px; max-width: 64ch; }
+  .acc ul { margin: 0; padding-left: 1.1em; }
+  .faq-group { display: grid; gap: 10px; }
+  .faq-group h3 { font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; color: var(--brass); }
+  .faq-groups { display: grid; gap: 40px; }
+
+  /* Voos */
+  .flights { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border: 1px solid var(--line); background: var(--surface); }
+  .flights > div { padding: 22px; display: grid; gap: 4px; }
+  .flights > div + div { border-left: 1.5px dashed var(--line); }
+  .flights .code { font-family: var(--mono); font-size: 2rem; font-weight: 500; letter-spacing: .06em; line-height: 1.1; }
+  .flights .k { font-family: var(--mono); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+
+  /* Datas */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; font-variant-numeric: tabular-nums; min-width: 520px; }
+  th { text-align: left; font-family: var(--mono); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 500; padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  td { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  .status { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .84rem; color: var(--muted); }
+  .status span { display: inline-flex; align-items: center; gap: 7px; }
+  .status i { width: 9px; height: 9px; border-radius: 50%; background: var(--c); }
+
+  /* Reserva (lateral) */
+  .book { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 140px); display: grid; gap: 16px; padding: 24px; background: var(--surface); border: 1px solid var(--line); }
+  .book .from { display: grid; gap: 2px; }
+  .book .from .k { font-family: var(--mono); font-size: .66rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+  .book .price { font-family: var(--display); font-size: var(--step-2); }
+  .book ul { list-style: none; margin: 0; padding: 14px 0 0; border-top: 1px dashed var(--line); display: grid; gap: 8px; font-size: .88rem; color: var(--muted); }
+  .book ul li { display: flex; justify-content: space-between; gap: 10px; }
+  .book .btn { width: 100%; }
+
+  /* Outras viagens */
+  .others { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; }
+  .others a { display: grid; gap: 8px; text-decoration: none; }
+  .others .ph { aspect-ratio: 4 / 5; max-width: 100%; overflow: hidden; background: var(--night); }
+  .others img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .others b { font-family: var(--display); font-weight: 500; font-size: 1.05rem; line-height: 1.15; }
+  .others span { font-family: var(--mono); font-size: .66rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+  /* CTA final */
+  .final { position: relative; background: var(--night); color: var(--on-night); overflow: hidden; text-align: center; padding-block: clamp(80px, 12vw, 140px); }
+  .final img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 60%; filter: brightness(.45) saturate(.9); }
+  .final .wrap { position: relative; display: grid; gap: 20px; justify-items: center; }
+  .final h2 { font-size: var(--step-4); font-weight: 400; }
+  .final h2 em { color: #f1d18f; }
+  .final p { color: var(--on-night-muted); }
+  .final .btn { border-color: #d9a94a; background: #d9a94a; color: #0b1722; }
+  .final .btn:hover { background: transparent; color: #f1d18f; }
+
+  footer { background: var(--night); color: var(--on-night-muted); border-top: 1px solid rgba(243,239,230,.12); padding-block: 40px 28px; font-size: .9rem; }
+  footer .row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: baseline; }
+  footer .mark { color: var(--on-night); }
+  footer .legal { margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(243,239,230,.12); font-family: var(--mono); font-size: .72rem; }
+  footer .credits { margin-top: 10px; font-size: .66rem; line-height: 1.6; opacity: .8; }
+
+  @media (max-width: 980px) {
+    .nav ul { display: none; }
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .book { position: static; order: -1; }
+    .others { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .pass { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pass > div:first-child { grid-column: 1 / -1; }
+    .pass > div + div { border-left: 0; border-top: 1.5px dashed #c9d2d8; }
+    .pass > div:nth-child(odd):not(:first-child) { border-left: 1.5px dashed #c9d2d8; }
+  }
+  @media (max-width: 620px) {
+    .mark { font-size: 1.05rem; letter-spacing: .2em; }
+    .nav { justify-content: space-between; }
+    .meters, .ledger, .flights { grid-template-columns: minmax(0, 1fr); }
+    .flights > div + div { border-left: 0; border-top: 1.5px dashed var(--line); }
+    .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 130px; }
+    .g1 { grid-column: span 2; grid-row: span 2; }
+    .g2, .g3, .g4, .g5, .g6 { grid-column: span 1; }
+    .day summary { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+    .day-body { padding-left: 0; }
+    .others { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stop b { font-size: var(--step-1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="draft">DESIGN DRAFT · stock photos stand in for our own · <b>TBD</b> = waiting for data · <b>SAMPLE</b> = placeholder text written to show the format</div>
+
+<header>
+  <div class="wrap nav">
+    <a class="mark" href="index.html">ONE <b>Universe</b></a>
+    <ul>
+      <li><a href="index.html#journeys">All journeys</a></li>
+      <li><a href="#days">Day by day</a></li>
+      <li><a href="#included">What's included</a></li>
+      <li><a href="#dates">Dates</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a class="btn" href="#contact">Contact us</a>
+  </div>
+</header>
+
+<section class="hero" id="top">
+  <img src="static/draft/jp-fuji.jpg" alt="Chureito Pagoda and Mount Fuji in autumn">
+  <div class="wrap hero-inner">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html#journeys">Journeys</a><span>/</span><span>Asia</span><span>/</span><span>Japan</span></nav>
+    <h1>Tokyo, Kyoto <em>&amp;</em> Osaka</h1>
+    <p class="lede">Neon and temple bells, bullet trains and tea houses: Japan’s three great cities in one journey. <span class="sample">Sample</span></p>
+    <div class="pass" role="group" aria-label="Journey at a glance">
+      <div><span class="k">Route</span><span class="route">HND <i></i> KIX</span></div>
+      <div><span class="k">Days · nights</span><span class="v"><span class="tbd">TBD</span></span></div>
+      <div><span class="k">From</span><span class="v"><span class="tbd">TBD</span></span></div>
+      <div><span class="k">Group</span><span class="v"><span class="tbd">TBD</span></span></div>
+      <div><span class="k">Next departure</span><span class="v"><span class="tbd">TBD</span></span></div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs" aria-label="On this page">
+  <div class="wrap">
+    <ul>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#days">Day by day</a></li>
+      <li><a href="#included">What's included</a></li>
+      <li><a href="#practical">Practical info</a></li>
+      <li><a href="#dates">Dates &amp; prices</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="wrap layout">
+  <main class="content">
+
+    <section class="block" id="overview">
+      <div class="block-head">
+        <span class="label">Overview <span class="sample">Sample</span></span>
+        <h2>From the world’s busiest crossing to its quietest gardens</h2>
+      </div>
+      <div class="prose">
+        <p>We begin in Tokyo, where centuries-old shrines sit between glass towers. The Shinkansen then carries us west to Kyoto, the old imperial capital of temples, moss gardens and lantern-lit lanes. We finish in Osaka, the city Japan itself calls its kitchen.</p>
+        <p>Everything between the first hotel and the last farewell is arranged for you: tickets, timings, tables and the people who make each place come alive.</p>
+      </div>
+
+      <div class="block-head" style="margin-top:12px">
+        <span class="label">Is this journey for me? <span class="sample">Sample</span></span>
+      </div>
+      <dl class="meters">
+        <div><dt>Culture &amp; history <span>5/5</span></dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></dd></div>
+        <div><dt>Food &amp; drink <span>5/5</span></dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></dd></div>
+        <div><dt>City life <span>4/5</span></dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></dd></div>
+        <div><dt>Nature <span>2/5</span></dt><dd><i class="on"></i><i class="on"></i><i></i><i></i><i></i></dd></div>
+        <div><dt>Pace <span>Moderate</span></dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></dd></div>
+        <div><dt>Walking <span>Daily, on foot</span></dt><dd><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></dd></div>
+      </dl>
+    </section>
+
+    <section class="block" aria-label="Photos">
+      <div class="gallery">
+        <figure class="g1"><img src="static/draft/jp-fushimi.jpg" alt="Vermilion torii gates at Fushimi Inari, Kyoto" loading="lazy"><figcaption>Fushimi Inari · Kyoto</figcaption></figure>
+        <figure class="g2"><img src="static/draft/jp-shibuya.jpg" alt="Shibuya Scramble Crossing, Tokyo" loading="lazy"><figcaption>Shibuya · Tokyo</figcaption></figure>
+        <figure class="g3"><img src="static/draft/japan.jpg" alt="Kinkaku-ji reflected in its pond, Kyoto" loading="lazy"><figcaption>Kinkaku-ji · Kyoto</figcaption></figure>
+        <figure class="g4"><img src="static/draft/jp-bamboo.jpg" alt="Arashiyama bamboo grove, Kyoto" loading="lazy"><figcaption>Arashiyama · Kyoto</figcaption></figure>
+        <figure class="g5"><img src="static/draft/jp-sensoji.jpg" alt="Senso-ji temple in the evening, Asakusa" loading="lazy"><figcaption>Senso-ji · Tokyo</figcaption></figure>
+        <figure class="g6"><img src="static/draft/jp-dotonbori.jpg" alt="Dotonbori canal at night, Osaka" loading="lazy"><figcaption>Dotonbori · Osaka</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="block" id="days">
+      <div class="block-head">
+        <span class="label">Day by day <span class="sample">Sample</span></span>
+        <h2>The route</h2>
+        <p class="note">A sample plan to show the format. Days, stops and what each day includes will come from One Universe’s real itinerary.</p>
+      </div>
+      <div class="routemap" aria-label="Route: Tokyo, Kyoto, Osaka">
+        <div class="stop"><b>Tokyo</b><span>Nights TBD</span></div>
+        <div class="stop"><b>Kyoto</b><span>Nights TBD</span></div>
+        <div class="stop"><b>Osaka</b><span>Nights TBD</span></div>
+      </div>
+      <div class="days">
+        <details class="day" open>
+          <summary><span class="n">Day 01</span><h3>Welcome to Tokyo</h3><span class="stay">Night in Tokyo</span></summary>
+          <div class="day-body">
+            <p>Arrival at Haneda and transfer to the hotel. In the evening, a welcome dinner with the group and your guide.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 02</span><h3>Old Tokyo: Asakusa, Ueno and Yanaka</h3><span class="stay">Night in Tokyo</span></summary>
+          <div class="day-body">
+            <p>Senso-ji at the quiet hour before the crowds, the craft shops of Nakamise and an afternoon in the lanes of Yanaka, one of the few districts to keep its pre-war streets.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 03</span><h3>New Tokyo: Meiji Jingu, Harajuku and Shibuya</h3><span class="stay">Night in Tokyo</span></summary>
+          <div class="day-body">
+            <p>The forest shrine of Meiji Jingu, the boutiques of Omotesando and the Shibuya crossing at dusk, seen from above.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 04</span><h3>By bullet train to Kyoto</h3><span class="stay">Night in Kyoto</span></summary>
+          <div class="day-body">
+            <p>The Shinkansen to Kyoto, with Mount Fuji on the right on a clear day. Evening walk through Gion and Pontocho.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 05</span><h3>Fushimi Inari and the Golden Pavilion</h3><span class="stay">Night in Kyoto</span></summary>
+          <div class="day-body">
+            <p>An early climb through the torii gates of Fushimi Inari, then Kinkaku-ji and the Zen rock garden of Ryoan-ji.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 06</span><h3>Arashiyama and a tea ceremony</h3><span class="stay">Night in Kyoto</span></summary>
+          <div class="day-body">
+            <p>The bamboo grove of Arashiyama and Tenryu-ji in the morning; a private tea ceremony in the afternoon.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 07</span><h3>Nara on the way to Osaka</h3><span class="stay">Night in Osaka</span></summary>
+          <div class="day-body">
+            <p>Todai-ji and its Great Buddha, and the deer of Nara Park. Arrival in Osaka in the late afternoon.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 08</span><h3>Osaka, Japan’s kitchen</h3><span class="stay">Night in Osaka</span></summary>
+          <div class="day-body">
+            <p>Osaka Castle in the morning, Kuromon Market at lunch and a farewell dinner by the canal in Dotonbori.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+        <details class="day">
+          <summary><span class="n">Day 09</span><h3>Sayonara</h3><span class="stay">Departure from Kansai</span></summary>
+          <div class="day-body">
+            <p>Breakfast and transfer to Kansai International Airport.</p>
+            <p class="inc"><strong>Included</strong> <span class="tbd">TBD</span></p>
+          </div>
+        </details>
+      </div>
+      <p class="disclaimer">The itinerary may change because of weather, public holidays or other local conditions. Wording of this notice <span class="tbd">TBD</span></p>
+    </section>
+
+    <section class="block" id="included">
+      <div class="block-head">
+        <span class="label">What’s included</span>
+        <h2>Taken care of, and what is up to you</h2>
+        <p class="note">The rows show what a journey like this usually covers. One Universe confirms each one.</p>
+      </div>
+      <div class="ledger">
+        <div>
+          <h3>Included</h3>
+          <ul>
+            <li><span>Hotels (category, room type)</span><span class="tbd">TBD</span></li>
+            <li><span>Breakfast</span><span class="tbd">TBD</span></li>
+            <li><span>Other meals</span><span class="tbd">TBD</span></li>
+            <li><span>Shinkansen and transfers</span><span class="tbd">TBD</span></li>
+            <li><span>Guide with the group</span><span class="tbd">TBD</span></li>
+            <li><span>Entrance fees</span><span class="tbd">TBD</span></li>
+            <li><span>Travel insurance</span><span class="tbd">TBD</span></li>
+          </ul>
+        </div>
+        <div class="no">
+          <h3>Not included</h3>
+          <ul>
+            <li><span>International flights</span><span class="tbd">TBD</span></li>
+            <li><span>Visa fees, if any</span><span class="tbd">TBD</span></li>
+            <li><span>Personal expenses</span><span class="tbd">TBD</span></li>
+            <li><span>Optional experiences</span><span class="tbd">TBD</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="block-head" style="margin-top:12px">
+        <span class="label">Optional experiences <span class="sample">Sample</span></span>
+      </div>
+      <div class="ideas">
+        <span>Kaiseki dinner</span><span>Sake tasting</span><span>Kimono fitting in Kyoto</span><span>Night at a ryokan with onsen</span><span>Sumo morning practice</span><span>Cooking class</span>
+      </div>
+    </section>
+
+    <section class="block" id="practical">
+      <div class="block-head">
+        <span class="label">Practical info</span>
+        <h2>Before you pack</h2>
+      </div>
+      <div class="acc">
+        <details><summary>Where we stay</summary><div><p>Hotel names and category <span class="tbd">TBD</span></p></div></details>
+        <details><summary>Getting around</summary><div><p>Japan’s high-speed trains link the three cities: Tokyo to Kyoto takes about 2 hours 15 minutes, Kyoto to Osaka under 30 minutes. Transport within each city <span class="tbd">TBD</span></p></div></details>
+        <details><summary>Your guide</summary><div><p>Who travels with the group, and in which languages <span class="tbd">TBD</span></p></div></details>
+        <details><summary>Luggage</summary><div><p>Japan has reliable luggage forwarding between hotels, so suitcases can travel separately while you take the train. Whether it is included <span class="tbd">TBD</span></p></div></details>
+        <details><summary>Single rooms</summary><div><p>Availability and supplement <span class="tbd">TBD</span></p></div></details>
+      </div>
+
+      <div class="block-head" style="margin-top:12px"><span class="label">Flights</span></div>
+      <div class="flights">
+        <div><span class="k">Arrive</span><span class="code">HND</span><span>Tokyo Haneda</span></div>
+        <div><span class="k">Depart</span><span class="code">KIX</span><span>Osaka Kansai</span></div>
+      </div>
+      <p class="note">Flights included? <span class="tbd">TBD</span></p>
+    </section>
+
+    <section class="block" id="dates">
+      <div class="block-head">
+        <span class="label">Dates &amp; prices</span>
+        <h2>Departures</h2>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Departure</th><th scope="col">Return</th><th scope="col">Price per person</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            <tr><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td></tr>
+            <tr><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td></tr>
+            <tr><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td><td><span class="tbd">TBD</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="status" aria-label="Departure status">
+        <span><i style="--c:var(--sea)"></i>Open for booking</span>
+        <span><i style="--c:var(--ink)"></i>Confirmed</span>
+        <span><i style="--c:var(--brass)"></i>Last places</span>
+        <span><i style="--c:var(--line)"></i>Full</span>
+      </div>
+    </section>
+
+    <section class="block" id="faq">
+      <div class="block-head">
+        <span class="label">FAQ</span>
+        <h2>Questions</h2>
+      </div>
+      <div class="faq-groups">
+        <div class="faq-group acc">
+          <h3>About this journey</h3>
+          <details><summary>Where and when do we meet on day one?</summary><div><p><span class="tbd">TBD</span></p></div></details>
+          <details><summary>How much walking is there?</summary><div><p><span class="tbd">TBD</span></p></div></details>
+          <details><summary>How big is the group?</summary><div><p><span class="tbd">TBD</span></p></div></details>
+        </div>
+        <div class="faq-group acc">
+          <h3>About One Universe</h3>
+          <details><summary>How do I book and pay?</summary><div><p><span class="tbd">TBD</span></p></div></details>
+          <details><summary>Can I change or cancel?</summary><div><p><span class="tbd">TBD</span></p></div></details>
+          <details><summary>Can I travel solo?</summary><div><p><span class="tbd">TBD</span></p></div></details>
+        </div>
+        <div class="faq-group acc">
+          <h3>About Japan</h3>
+          <details><summary>Do I need a visa?</summary><div><p>It depends on your passport. Many nationalities can visit Japan as tourists for up to 90 days without a visa, but the list changes. Check with the Embassy of Japan in your country before booking.</p></div></details>
+          <details><summary>What is the time difference?</summary><div><p>Japan Standard Time is UTC+9, with no daylight saving. That is 12 hours ahead of São Paulo and 8 or 9 hours ahead of central Europe.</p></div></details>
+          <details><summary>What currency is used, and how do I pay?</summary><div><p>The Japanese yen (JPY). Cards are accepted in hotels, department stores and most restaurants, but small shops and temples often take cash only. Convenience-store ATMs accept foreign cards. A prepaid transit card (Suica, PASMO or ICOCA) also pays for trains and many shops.</p></div></details>
+          <details><summary>Should I tip?</summary><div><p>No. Tipping is not part of Japanese culture and can cause confusion. Good service is included in the price.</p></div></details>
+          <details><summary>Which plugs are used?</summary><div><p>Type A and B (two flat pins), 100 V. Most phone and laptop chargers work; check hair dryers and other appliances.</p></div></details>
+          <details><summary>Will I have internet?</summary><div><p>Yes. An eSIM or a pocket Wi-Fi rented at the airport is the easiest option. Hotels and stations have free Wi-Fi.</p></div></details>
+          <details><summary>When is the best time to go?</summary><div>
+            <ul>
+              <li><b>Spring</b>, late March to early April: cherry blossoms.</li>
+              <li><b>Autumn</b>, mid-November to early December: red maples in Kyoto.</li>
+              <li><b>Summer</b> is hot and humid; the rainy season runs from June to mid-July.</li>
+              <li><b>Winter</b> is cold and dry, with clear days and fewer visitors.</li>
+            </ul>
+          </div></details>
+          <details><summary>A few useful words</summary><div><p><b>Konnichiwa</b>: hello · <b>Arigatō</b>: thank you · <b>Sumimasen</b>: excuse me · <b>Oishii</b>: delicious</p></div></details>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="book" aria-label="Booking">
+    <div class="from"><span class="k">From, per person</span><span class="price"><span class="tbd">TBD</span></span></div>
+    <a class="btn" href="#dates">See dates</a>
+    <a class="btn btn-ghost" href="#contact">Talk to us</a>
+    <ul>
+      <li><span>Deposit</span><span class="tbd">TBD</span></li>
+      <li><span>Instalments</span><span class="tbd">TBD</span></li>
+      <li><span>Free changes until</span><span class="tbd">TBD</span></li>
+    </ul>
+  </aside>
+</div>
+
+<section style="padding-block: 0 clamp(72px, 10vw, 120px)">
+  <div class="wrap block">
+    <div class="block-head"><span class="label">Other journeys</span><h2>Where next?</h2></div>
+    <div class="others">
+      <a href="index.html#journeys"><div class="ph"><img src="static/draft/galapagos.jpg" alt="" loading="lazy"></div><span>Ecuador</span><b>Quito &amp; Galápagos</b></a>
+      <a href="index.html#journeys"><div class="ph"><img src="static/draft/andes.jpg" alt="" loading="lazy"></div><span>Peru</span><b>Cusco &amp; Machu Picchu</b></a>
+      <a href="index.html#journeys"><div class="ph"><img src="static/draft/alps.jpg" alt="" loading="lazy"></div><span>Switzerland</span><b>Zurich, Geneva &amp; Luzern</b></a>
+      <a href="index.html#journeys"><div class="ph"><img src="static/draft/italy.jpg" alt="" loading="lazy"></div><span>Italy</span><b>Rome, Venice &amp; Milan</b></a>
+      <a href="index.html#journeys"><div class="ph"><img src="static/draft/hawaii.jpg" alt="" loading="lazy"></div><span>Hawaii</span><b>Maui, Kauai &amp; Oahu</b></a>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="contact">
+  <img src="static/draft/night.jpg" alt="" loading="lazy">
+  <div class="wrap">
+    <span class="label" style="color:#e2bd6f">Contact</span>
+    <h2>One call. One decision. <em>Japan.</em></h2>
+    <p>Tell us when you would like to travel. We take care of the rest.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center">
+      <a class="btn" href="#contact">WhatsApp · TBD</a>
+      <a class="btn" href="#contact" style="background:transparent;color:var(--on-night);border-color:rgba(243,239,230,.55)">E-mail · TBD</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="row"><a class="mark" href="index.html">ONE <b>Universe</b></a><span>Extraordinary journeys for those who crave elegance, adventure and culture.</span></div>
+    <div class="legal">© 2026 One Universe · address and registration TBD</div>
+    <div class="credits">Draft photos from Wikimedia Commons, placeholders until our own arrive: Chureito Pagoda, Dang Son (CC0) · Fushimi Inari, Balon Greyjoy (CC0) · Shibuya, Benh Lieu Song (CC BY-SA 2.0) · Kinkaku-ji, Basile Morin (CC BY-SA 4.0) · Arashiyama, Erol Ahmed (CC0) · Senso-ji, Guilhem Vellut (CC BY 2.0) · Dotonbori, Sakai Yayoi (CC0) · Evening in Kyoto, Sergiy Galyonkin (CC BY-SA 2.0) · Galápagos, Bernard Gagnon (CC BY-SA 4.0) · Machu Picchu, Diego Delso (CC BY-SA 4.0) · Kapellbrücke, Ikiwaner (CC BY-SA 3.0) · Canal Grande, Wolfgang Moroder (CC BY-SA 3.0) · Na Pali Coast, dronepicr (CC BY 2.0)</div>
+  </div>
+</footer>
+
+</body>
+</html>

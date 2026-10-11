@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<style>body { margin: 0; } img { max-width: 100%; } [hidden] { display: none !important; }</style>
+<title>One Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..700;1,6..96,400..600&family=Instrument+Sans:wght@400..600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Rascunho v2 (2026-10-09). Conceito: parede de cartazes de viagem + bilhete de embarque.
+     As ilustrações são desenhadas em canvas e ficam no lugar das fotos até a cliente mandar as reais. */
+  :root {
+    --paper: #edf0f1;      /* névoa fria */
+    --surface: #ffffff;
+    --ink: #0f2333;        /* azul-marinho profundo */
+    --muted: #4f606c;
+    --line: #c9d2d8;
+    --brass: #9c7019;      /* latão: o único acento */
+    --sea: #2b6a73;
+    --night: #0b1722;
+    --on-night: #f3efe6;
+    --on-night-muted: #b7c0c8;
+
+    --display: "Bodoni Moda", "Didot", "Bodoni 72", Georgia, serif;
+    --body: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+
+    --step-0: 1rem;
+    --step-1: 1.2rem;
+    --step-2: 1.6rem;
+    --step-3: clamp(1.9rem, 3.6vw, 2.6rem);
+    --step-4: clamp(2.4rem, 6.2vw, 4.6rem);
+    --gutter: clamp(16px, 4vw, 40px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #0c1720; --surface: #12212d; --ink: #e6ebee; --muted: #9caab4;
+      --line: #23343f; --brass: #d6a94e; --sea: #6fb3bb; --night: #060e15;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #0c1720; --surface: #12212d; --ink: #e6ebee; --muted: #9caab4;
+    --line: #23343f; --brass: #d6a94e; --sea: #6fb3bb; --night: #060e15;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--paper); color: var(--ink); font-family: var(--body); font-size: var(--step-0); line-height: 1.6; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 500; line-height: 1.08; margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+  .wrap { max-width: 1200px; margin-inline: auto; padding-inline: var(--gutter); }
+  .label { font-family: var(--mono); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; color: var(--brass); }
+  .tbd { font-family: var(--mono); font-size: .78rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 4px; padding: 1px 6px; white-space: nowrap; }
+  .btn { display: inline-flex; align-items: center; gap: .5em; font: 600 .95rem/1 var(--body); text-decoration: none; cursor: pointer;
+         padding: 15px 26px; border-radius: 2px; border: 1px solid var(--brass); background: var(--brass); color: #fff; transition: background .2s, color .2s; }
+  .btn:hover { background: transparent; color: var(--brass); }
+  .btn-line { background: transparent; color: var(--on-night); border-color: color-mix(in srgb, var(--on-night) 60%, transparent); }
+  .btn-line:hover { color: var(--night); background: var(--on-night); }
+
+  /* Aviso de rascunho */
+  .draft { background: var(--ink); color: var(--paper); font-family: var(--mono); font-size: .72rem; letter-spacing: .06em; text-align: center; padding: 7px var(--gutter); }
+
+  /* Cabeçalho */
+  header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--paper) 90%, transparent);
+           backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  .nav { display: flex; align-items: center; gap: 28px; height: 70px; }
+  .mark { font-family: var(--display); font-size: 1.3rem; letter-spacing: .28em; text-decoration: none; white-space: nowrap; }
+  .mark b { font-weight: 500; font-style: italic; letter-spacing: .1em; color: var(--brass); }
+  .nav ul { display: flex; gap: 26px; list-style: none; margin: 0 0 0 auto; padding: 0; font-size: .92rem; }
+  .nav ul a { text-decoration: none; color: var(--muted); }
+  .nav ul a:hover { color: var(--ink); }
+  .langs { font-family: var(--mono); font-size: .74rem; color: var(--muted); display: flex; gap: 10px; }
+  .langs .on { color: var(--ink); border-bottom: 1px solid var(--brass); }
+  .nav .btn { padding: 11px 18px; font-size: .85rem; }
+
+  /* Ilustrações */
+  canvas.art { display: block; width: 100%; height: 100%; }
+
+  /* Hero */
+  .hero { position: relative; background: var(--night); color: var(--on-night); overflow: hidden; }
+  .hero canvas.art { position: absolute; inset: 0; }
+  .hero-inner { position: relative; display: grid; gap: 22px; padding-block: clamp(96px, 16vw, 170px) clamp(120px, 14vw, 170px); max-width: 860px; }
+  .hero .label { color: #e7c27a; }
+  .hero h1 { font-size: var(--step-4); font-weight: 400; letter-spacing: -.01em; }
+  .hero h1 em { font-style: italic; color: #f1d18f; }
+  .hero p { font-size: var(--step-1); color: var(--on-night-muted); max-width: 58ch; }
+  .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+  .hero .btn { border-color: #d9a94a; background: #d9a94a; color: #0b1722; }
+  .hero .btn:hover { background: transparent; color: #f1d18f; }
+  .hero .btn-line { background: transparent; color: var(--on-night); border-color: rgba(243,239,230,.55); }
+  .hero .btn-line:hover { background: var(--on-night); color: #0b1722; }
+  .hero-foot { position: absolute; left: 0; right: 0; bottom: 0; border-top: 1px solid rgba(243,239,230,.18); background: rgba(6,12,20,.35); backdrop-filter: blur(4px); }
+  .hero-foot .wrap { display: flex; flex-wrap: wrap; gap: 8px 32px; padding-block: 14px; font-family: var(--mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; color: var(--on-night-muted); }
+  .hero-foot b { color: var(--on-night); font-weight: 500; }
+
+  section { padding-block: clamp(72px, 10vw, 128px); }
+
+  /* "Someday" */
+  .someday .wrap { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: clamp(28px, 6vw, 80px); align-items: end; }
+  .someday .intro { display: grid; gap: 16px; color: var(--muted); max-width: 42ch; }
+  .someday .intro .label { color: var(--brass); }
+  .postpone { font-family: var(--display); font-size: var(--step-3); line-height: 1.25; display: grid; gap: 6px; }
+  .postpone s { text-decoration: none; position: relative; color: var(--muted); width: fit-content; }
+  .postpone s::after { content: ""; position: absolute; left: -4px; right: -4px; top: 55%; height: 2px; background: var(--brass);
+                       transform-origin: left; animation: strike .7s cubic-bezier(.6,0,.3,1) both; }
+  .postpone s:nth-child(2)::after { animation-delay: .35s; }
+  .postpone s:nth-child(3)::after { animation-delay: .7s; }
+  .postpone .now { font-style: italic; margin-top: 14px; color: var(--ink); }
+  @keyframes strike { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  /* Destinos: cartaz + bilhete */
+  .head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 20px 40px; margin-bottom: clamp(36px, 5vw, 56px); }
+  .head h2 { font-size: var(--step-3); max-width: 18ch; margin-top: 12px; }
+  .head p { color: var(--muted); max-width: 46ch; }
+  .posters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(20px, 2.6vw, 34px); }
+  .poster { display: flex; flex-direction: column; text-decoration: none; }
+  .poster-art { position: relative; aspect-ratio: 4 / 5; max-width: 100%; overflow: hidden; background: var(--night); }
+  .poster-art canvas { transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+  .poster:hover .poster-art canvas { transform: scale(1.04); }
+  .poster-art .country { position: absolute; left: 18px; top: 16px; font-family: var(--mono); font-size: .7rem; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.92); text-shadow: 0 1px 6px rgba(0,0,0,.35); }
+  .poster-art .title { position: absolute; left: 18px; right: 18px; bottom: 16px; font-family: var(--display); font-size: clamp(1.5rem, 2.4vw, 1.9rem); line-height: 1.05; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.4); }
+  .ticket { position: relative; background: var(--surface); border: 1px solid var(--line); border-top: 0; padding: 18px 18px 16px; display: grid; gap: 12px; }
+  .ticket::before { content: ""; position: absolute; left: 14px; right: 14px; top: 0; border-top: 1.5px dashed var(--line); }
+  .route { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: .95rem; font-weight: 500; letter-spacing: .08em; }
+  .route i { flex: 1; height: 1px; background: var(--line); position: relative; }
+  .route i::after { content: "✈"; position: absolute; left: 50%; top: -.75em; transform: translateX(-50%); font-style: normal; font-size: .8rem; color: var(--brass); background: var(--surface); padding-inline: 4px; }
+  .facts { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 10px; margin: 0; font-variant-numeric: tabular-nums; }
+  .facts dt { font-family: var(--mono); font-size: .64rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+  .facts dd { margin: 2px 0 0; font-size: .86rem; }
+  .facts .coord { font-family: var(--mono); font-size: .76rem; }
+
+  /* Promessa (faixa escura) */
+  .promise { background: var(--night); color: var(--on-night); }
+  .promise .label { color: #e2bd6f; }
+  .promise h2 { font-size: var(--step-3); max-width: 22ch; margin-top: 12px; }
+  .promise .lede { color: var(--on-night-muted); max-width: 60ch; margin-top: 18px; font-size: var(--step-1); }
+  .pillars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: clamp(40px, 6vw, 64px); border-top: 1px solid rgba(243,239,230,.18); }
+  .pillars div { padding: 24px 24px 0 0; display: grid; gap: 8px; align-content: start; }
+  .pillars div + div { padding-left: 24px; border-left: 1px solid rgba(243,239,230,.18); }
+  .pillars h3 { font-size: var(--step-1); font-style: italic; }
+  .pillars p { color: var(--on-night-muted); font-size: .93rem; }
+
+  /* Passaporte + cadastro */
+  .passport .wrap { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(36px, 6vw, 88px); align-items: center; }
+  .page { position: relative; aspect-ratio: 5 / 4; max-width: 100%; background: var(--surface); border: 1px solid var(--line);
+          background-image: repeating-linear-gradient(0deg, transparent 0 27px, color-mix(in srgb, var(--line) 55%, transparent) 27px 28px); }
+  .page::before { content: "VISAS · VISTOS · 査証"; position: absolute; left: 16px; top: 12px; font-family: var(--mono); font-size: .62rem; letter-spacing: .2em; color: var(--muted); }
+  .stamp { position: absolute; display: grid; place-items: center; text-align: center; font-family: var(--mono); text-transform: uppercase;
+           border: 2px solid currentColor; color: var(--c); opacity: .82; line-height: 1.15; mix-blend-mode: multiply; }
+  :root[data-theme="dark"] .stamp { mix-blend-mode: normal; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .stamp { mix-blend-mode: normal; } }
+  .stamp small { font-size: .55rem; letter-spacing: .16em; }
+  .stamp strong { font-size: 1.25rem; font-weight: 500; letter-spacing: .08em; }
+  .stamp.round { width: 30%; aspect-ratio: 1; border-radius: 50%; outline: 1px solid currentColor; outline-offset: -7px; }
+  .stamp.rect { padding: 8px 14px; border-radius: 6px; }
+  .passport-copy { display: grid; gap: 18px; }
+  .passport-copy h2 { font-size: var(--step-3); }
+  .passport-copy p { color: var(--muted); max-width: 48ch; }
+  .join { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+  .join label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .join input { flex: 1 1 240px; min-width: 0; padding: 14px 16px; font: inherit; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 2px; }
+  .join .done { font-family: var(--display); font-size: var(--step-1); font-style: italic; }
+
+  /* Frase */
+  .belief { padding-block: clamp(56px, 8vw, 96px); border-block: 1px solid var(--line); text-align: center; }
+  .belief blockquote { margin: 0 auto; max-width: 24ch; font-family: var(--display); font-size: var(--step-4); font-weight: 400; line-height: 1.05; text-wrap: balance; }
+  .belief blockquote em { color: var(--brass); }
+
+  /* FAQ */
+  .faq .wrap { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: clamp(28px, 6vw, 80px); }
+  .faq h2 { font-size: var(--step-3); margin-top: 12px; }
+  .faq aside p { color: var(--muted); margin-top: 14px; max-width: 34ch; }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq details:first-child { border-top: 1px solid var(--line); }
+  .faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 16px; padding-block: 20px; font-size: var(--step-1); font-family: var(--display); }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; font-family: var(--mono); color: var(--brass); }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { padding-bottom: 20px; color: var(--muted); }
+
+  /* CTA final */
+  .final { position: relative; background: var(--night); color: var(--on-night); overflow: hidden; text-align: center; }
+  .final canvas.art { position: absolute; inset: 0; }
+  .final .wrap { position: relative; display: grid; gap: 20px; justify-items: center; }
+  .final h2 { font-size: var(--step-4); font-weight: 400; }
+  .final h2 span { display: block; }
+  .final h2 em { color: #f1d18f; }
+  .final p { color: var(--on-night-muted); }
+  .final .ctas { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; }
+  .final .btn { border-color: #d9a94a; background: #d9a94a; color: #0b1722; }
+  .final .btn:hover { background: transparent; color: #f1d18f; }
+  .final .btn-line { background: transparent; color: var(--on-night); border-color: rgba(243,239,230,.55); }
+
+
+  /* Fotos de rascunho (Wikimedia Commons) por cima do canvas; se não carregarem, o canvas aparece */
+  img.photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .hero img.photo, .final img.photo { filter: brightness(.55) saturate(.9); }
+  .final img.photo { object-position: 50% 60%; }
+  .poster-art img.photo { transition: transform .8s cubic-bezier(.2,.7,.2,1); }
+  .poster:hover .poster-art img.photo { transform: scale(1.04); }
+  .poster-art::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+                       background: linear-gradient(to bottom, rgba(0,0,0,.28), transparent 22%, transparent 55%, rgba(0,0,0,.55)); }
+  .poster-art .country, .poster-art .title { z-index: 1; }
+  footer .credits { margin-top: 10px; font-size: .66rem; line-height: 1.6; opacity: .8; }
+  footer { background: var(--night); color: var(--on-night-muted); border-top: 1px solid rgba(243,239,230,.12); padding-block: 48px 28px; font-size: .9rem; }
+  footer .cols { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 28px; }
+  footer .mark { color: var(--on-night); }
+  footer h4 { margin: 0 0 10px; font-family: var(--mono); font-size: .7rem; letter-spacing: .16em; text-transform: uppercase; color: var(--on-night); font-weight: 500; }
+  footer ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+  footer a { text-decoration: none; }
+  footer a:hover { color: var(--on-night); }
+  footer .legal { margin-top: 36px; padding-top: 18px; border-top: 1px solid rgba(243,239,230,.12); font-family: var(--mono); font-size: .72rem; }
+  footer .tbd { color: var(--on-night-muted); border-color: rgba(243,239,230,.25); }
+
+  @media (max-width: 980px) {
+    .nav ul { display: none; }
+    .posters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .pillars div:nth-child(3) { padding-left: 0; border-left: 0; }
+    .someday .wrap, .passport .wrap, .faq .wrap { grid-template-columns: minmax(0, 1fr); }
+    footer .cols { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 620px) {
+    .langs { display: none; }
+    .nav { gap: 12px; justify-content: space-between; }
+    .mark { font-size: 1.05rem; letter-spacing: .2em; }
+    .posters, .pillars { grid-template-columns: minmax(0, 1fr); }
+    .pillars div, .pillars div + div { padding-left: 0; border-left: 0; padding-bottom: 8px; }
+    .facts { grid-template-columns: 1fr 1fr; }
+    .facts .c3 { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="draft">DESIGN DRAFT · stock photos stand in for our own · items marked TBD are waiting for real data</div>
+
+<header>
+  <div class="wrap nav">
+    <a class="mark" href="#top">ONE <b>Universe</b></a>
+    <ul>
+      <li><a href="#journeys">Journeys</a></li>
+      <li><a href="#promise">Why us</a></li>
+      <li><a href="#join">Join</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="langs" aria-label="Languages"><span class="on">EN</span><span>ES</span><span>PT</span><span>IT</span><span>日本語</span></div>
+    <a class="btn" href="#contact">Contact us</a>
+  </div>
+</header>
+
+<section class="hero" id="top" style="padding:0">
+  <canvas class="art" data-scene="dawn" aria-hidden="true"></canvas><img class="photo" src="static/draft/dawn.jpg" alt="Matterhorn at sunset" onerror="this.remove()">
+  <div class="wrap hero-inner">
+    <span class="label">Extraordinary journeys</span>
+    <h1>The world is too beautiful to keep <em>postponing</em> your dreams.</h1>
+    <p>Have you ever imagined yourself walking through the streets of Rome, watching the sunrise in Santorini, discovering the magic of Tokyo, or standing before the breathtaking wonder of Machu Picchu?</p>
+    <div class="ctas">
+      <a class="btn" href="#journeys">Explore our journeys</a>
+      <a class="btn btn-line" href="#contact">Talk to us</a>
+    </div>
+  </div>
+  <div class="hero-foot">
+    <div class="wrap"><span><b>6</b> journeys</span><span><b>4</b> continents</span><span><b>5</b> languages</span><span>Group departures <span class="tbd" style="color:inherit">TBD</span></span></div>
+  </div>
+</section>
+
+<section class="someday">
+  <div class="wrap">
+    <div class="intro">
+      <span class="label">The someday problem</span>
+      <p>For many people, travel becomes a “someday” dream. And before they realize it, time quietly passes by.</p>
+      <p>At ONE UNIVERSE, we believe life was meant to be experienced, not postponed.</p>
+    </div>
+    <div class="postpone" aria-label="Next year. Next vacation. The right moment. Now.">
+      <s>Next year.</s>
+      <s>Next vacation.</s>
+      <s>The right moment.</s>
+      <span class="now">One Universe to explore now.</span>
+    </div>
+  </div>
+</section>
+
+<section id="journeys" style="padding-top:0">
+  <div class="wrap">
+    <div class="head">
+      <div>
+        <span class="label">Six journeys</span>
+        <h2>Discover the world through exclusive experiences</h2>
+      </div>
+      <p>From the romantic canals of Venice to the crystal waters of Hawaii, every destination is carefully curated so you can simply enjoy the experience.</p>
+    </div>
+
+    <div class="posters">
+      <a class="poster" href="#contact">
+        <div class="poster-art"><canvas class="art" data-scene="galapagos" aria-hidden="true"></canvas><img class="photo" src="static/draft/galapagos.jpg" alt="Sea lion pup on a Galápagos beach" loading="lazy" onerror="this.remove()"><span class="country">Ecuador</span><span class="title">Quito &amp; Galápagos</span></div>
+        <div class="ticket">
+          <div class="route">UIO <i></i> GPS</div>
+          <dl class="facts"><div><dt>Days</dt><dd><span class="tbd">TBD</span></dd></div><div><dt>From</dt><dd><span class="tbd">TBD</span></dd></div><div class="c3"><dt>Coordinates</dt><dd class="coord">0.74°S 90.31°W</dd></div></dl>
+        </div>
+      </a>
+      <a class="poster" href="#contact">
+        <div class="poster-art"><canvas class="art" data-scene="andes" aria-hidden="true"></canvas><img class="photo" src="static/draft/andes.jpg" alt="Machu Picchu" loading="lazy" onerror="this.remove()"><span class="country">Peru</span><span class="title">Cusco &amp; Machu Picchu</span></div>
+        <div class="ticket">
+          <div class="route">LIM <i></i> CUZ</div>
+          <dl class="facts"><div><dt>Days</dt><dd><span class="tbd">TBD</span></dd></div><div><dt>From</dt><dd><span class="tbd">TBD</span></dd></div><div class="c3"><dt>Coordinates</dt><dd class="coord">13.16°S 72.55°W</dd></div></dl>
+        </div>
+      </a>
+      <a class="poster" href="roteiro-japao.html">
+        <div class="poster-art"><canvas class="art" data-scene="japan" aria-hidden="true"></canvas><img class="photo" src="static/draft/japan.jpg" alt="Kinkaku-ji, Kyoto" loading="lazy" onerror="this.remove()"><span class="country">Japan</span><span class="title">Tokyo, Kyoto &amp; Osaka</span></div>
+        <div class="ticket">
+          <div class="route">HND <i></i> KIX</div>
+          <dl class="facts"><div><dt>Days</dt><dd><span class="tbd">TBD</span></dd></div><div><dt>From</dt><dd><span class="tbd">TBD</span></dd></div><div class="c3"><dt>Coordinates</dt><dd class="coord">35.01°N 135.77°E</dd></div></dl>
+        </div>
+      </a>
+      <a class="poster" href="#contact">
+        <div class="poster-art"><canvas class="art" data-scene="alps" aria-hidden="true"></canvas><img class="photo" src="static/draft/alps.jpg" alt="Chapel Bridge, Lucerne" loading="lazy" onerror="this.remove()"><span class="country">Switzerland</span><span class="title">Zurich, Geneva &amp; Luzern</span></div>
+        <div class="ticket">
+          <div class="route">ZRH <i></i> GVA</div>
+          <dl class="facts"><div><dt>Days</dt><dd><span class="tbd">TBD</span></dd></div><div><dt>From</dt><dd><span class="tbd">TBD</span></dd></div><div class="c3"><dt>Coordinates</dt><dd class="coord">47.05°N 8.31°E</dd></div></dl>
+        </div>
+      </a>
+      <a class="poster" href="#contact">
+        <div class="poster-art"><canvas class="art" data-scene="italy" aria-hidden="true"></canvas><img class="photo" src="static/draft/italy.jpg" alt="Grand Canal, Venice" loading="lazy" onerror="this.remove()"><span class="country">Italy</span><span class="title">Rome, Venice &amp; Milan</span></div>
+        <div class="ticket">
+          <div class="route">FCO <i></i> MXP</div>
+          <dl class="facts"><div><dt>Days</dt><dd><span class="tbd">TBD</span></dd></div><div><dt>From</dt><dd><span class="tbd">TBD</span></dd></div><div class="c3"><dt>Coordinates</dt><dd class="coord">41.90°N 12.50°E</dd></div></dl>
+        </div>
+      </a>
+      <a class="poster" href="#contact">
+        <div class="poster-art"><canvas class="art" data-scene="hawaii" aria-hidden="true"></canvas><img class="photo" src="static/draft/hawaii.jpg" alt="Na Pali Coast, Kauai" loading="lazy" onerror="this.remove()"><span class="country">Hawaii</span><span class="title">Maui, Kauai &amp; Oahu</span></div>
+        <div class="ticket">
+          <div class="route">OGG <i></i> HNL</div>
+          <dl class="facts"><div><dt>Days</dt><dd><span class="tbd">TBD</span></dd></div><div><dt>From</dt><dd><span class="tbd">TBD</span></dd></div><div class="c3"><dt>Coordinates</dt><dd class="coord">20.80°N 156.33°W</dd></div></dl>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="promise" id="promise">
+  <div class="wrap">
+    <span class="label">Why One Universe</span>
+    <h2>Life was meant to be experienced, not postponed</h2>
+    <p class="lede">We create extraordinary journeys designed for those who crave elegance, adventure, culture, and unforgettable memories.</p>
+    <div class="pillars">
+      <div><h3>Elegance</h3><p>Comfortable, well-chosen places to stay and travel between.</p></div>
+      <div><h3>Adventure</h3><p>Volcanic islands, Inca citadels, alpine lakes and Pacific coastlines.</p></div>
+      <div><h3>Culture</h3><p>Temples in Kyoto, piazzas in Rome, markets in Cusco.</p></div>
+      <div><h3>Every detail</h3><p>We take care of the planning so you can simply enjoy the experience.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="passport" id="join">
+  <div class="wrap">
+    <div class="page" aria-hidden="true">
+      <div class="stamp round" style="--c:var(--sea); left:8%; top:16%; transform:rotate(-12deg)"><div><small>Entry</small><br><strong>GPS</strong><br><small>Ecuador</small></div></div>
+      <div class="stamp rect" style="--c:var(--brass); left:44%; top:12%; transform:rotate(6deg)"><div><small>Arrival · 入国</small><br><strong>KIX</strong></div></div>
+      <div class="stamp round" style="--c:var(--ink); left:60%; top:46%; transform:rotate(14deg)"><div><small>Entrata</small><br><strong>FCO</strong><br><small>Italia</small></div></div>
+      <div class="stamp rect" style="--c:var(--sea); left:12%; top:62%; transform:rotate(-5deg)"><div><small>Perú · Ingreso</small><br><strong>CUZ</strong></div></div>
+    </div>
+    <div class="passport-copy">
+      <span class="label">Join One Universe</span>
+      <h2>Your next chapter begins with a new passport stamp</h2>
+      <p>Whether once a year or every six months, your next chapter can always begin with a new passport stamp, a new culture, and a new story to tell. Join ONE UNIVERSE and allow us to turn your travel dreams into a lifestyle.</p>
+      <form class="join" id="join-form">
+        <label for="join-email">Your e-mail</label>
+        <input id="join-email" type="email" placeholder="Your e-mail" autocomplete="email" required>
+        <button class="btn" type="submit">Join the list</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="belief">
+  <div class="wrap">
+    <blockquote>Luxury is not only what you own. It’s what you <em>experience</em>.</blockquote>
+  </div>
+</section>
+
+<section class="faq" id="faq">
+  <div class="wrap">
+    <aside>
+      <span class="label">Before you go</span>
+      <h2>Questions</h2>
+      <p>Answers will come from One Universe’s own policies. Until then they are marked TBD.</p>
+    </aside>
+    <div>
+      <details><summary>Are flights included?</summary><p><span class="tbd">TBD</span></p></details>
+      <details><summary>How big are the groups?</summary><p><span class="tbd">TBD</span></p></details>
+      <details><summary>Can I travel solo?</summary><p><span class="tbd">TBD</span></p></details>
+      <details><summary>How do I book and pay?</summary><p><span class="tbd">TBD</span></p></details>
+      <details><summary>What is the cancellation policy?</summary><p><span class="tbd">TBD</span></p></details>
+    </div>
+  </div>
+</section>
+
+<section class="final" id="contact">
+  <canvas class="art" data-scene="night" aria-hidden="true"></canvas><img class="photo" src="static/draft/night.jpg" alt="Lantern-lit street in Kyoto at dusk" loading="lazy" onerror="this.remove()">
+  <div class="wrap">
+    <span class="label" style="color:#e2bd6f">Contact</span>
+    <h2><span>One call.</span><span>One decision.</span><span>One Universe to explore <em>now</em>.</span></h2>
+    <p>Tell us where you dream of going. We take care of the rest.</p>
+    <div class="ctas">
+      <a class="btn" href="#contact">WhatsApp · TBD</a>
+      <a class="btn btn-line" href="#contact">E-mail · TBD</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="cols">
+      <div><a class="mark" href="#top">ONE <b>Universe</b></a><p style="margin-top:12px;max-width:34ch">Extraordinary journeys for those who crave elegance, adventure and culture.</p></div>
+      <div><h4>Journeys</h4><ul><li>Ecuador</li><li>Peru</li><li>Japan</li><li>Switzerland</li><li>Italy</li><li>Hawaii</li></ul></div>
+      <div><h4>Company</h4><ul><li><a href="#promise">Why us</a></li><li><a href="#faq">FAQ</a></li><li><a href="#contact">Contact</a></li></ul></div>
+      <div><h4>Follow</h4><ul><li>Instagram <span class="tbd">TBD</span></li><li>Facebook <span class="tbd">TBD</span></li></ul></div>
+    </div>
+    <div class="legal">© 2026 One Universe · address and registration TBD</div>
+    <div class="credits">Draft photos from Wikimedia Commons, placeholders until our own arrive: Matterhorn, Sam Ferrara (CC0) · Galápagos sea lion, Bernard Gagnon (CC BY-SA 4.0) · Machu Picchu, Diego Delso (CC BY-SA 4.0) · Kinkaku-ji, Basile Morin (CC BY-SA 4.0) · Kapellbrücke, Ikiwaner (CC BY-SA 3.0) · Canal Grande, Wolfgang Moroder (CC BY-SA 3.0) · Na Pali Coast, dronepicr (CC BY 2.0) · Evening in Kyoto, Sergiy Galyonkin (CC BY-SA 2.0)</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Cartazes procedurais: cada cena é desenhada com camadas de relevo, céu, sol e mar.
+  function rng(seed) {
+    return function () {
+      seed = (seed + 0x6D2B79F5) | 0;
+      var t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function P(c, w, h, r) {
+    var api = {
+      sky: function (stops) {
+        var g = c.createLinearGradient(0, 0, 0, h);
+        stops.forEach(function (s) { g.addColorStop(s[0], s[1]); });
+        c.fillStyle = g; c.fillRect(0, 0, w, h);
+      },
+      stars: function (n, maxY, alpha) {
+        for (var i = 0; i < n; i++) {
+          var x = r() * w, y = Math.pow(r(), 1.6) * h * maxY, s = r() < .08 ? 1.6 : .8;
+          c.fillStyle = "rgba(255,248,230," + (alpha * (.3 + r() * .7)).toFixed(2) + ")";
+          c.beginPath(); c.arc(x, y, s * (w / 900 + .6), 0, 7); c.fill();
+        }
+      },
+      sun: function (x, y, rad, color, glow) {
+        if (glow) {
+          var g = c.createRadialGradient(x * w, y * h, 0, x * w, y * h, rad * w * 5);
+          g.addColorStop(0, glow); g.addColorStop(1, "rgba(0,0,0,0)");
+          c.fillStyle = g; c.fillRect(0, 0, w, h);
+        }
+        c.fillStyle = color; c.beginPath(); c.arc(x * w, y * h, rad * w, 0, 7); c.fill();
+      },
+      ridge: function (o) {
+        var oct = o.oct || 4, ph = [], i;
+        for (i = 0; i < oct; i++) ph.push(r() * 6.283);
+        var p = new Path2D(); p.moveTo(0, h);
+        for (var x = 0; x <= w + 2; x += 2) {
+          var u = x / w, y = 0, a = 1, f = o.freq || 1, n = 0;
+          for (i = 0; i < oct; i++) {
+            var s = Math.sin(u * f * 6.283 + ph[i]);
+            s = o.sharp ? 1 - Math.abs(s) : (s + 1) / 2;
+            y += a * s; n += a; a *= .5; f *= 2.13;
+          }
+          p.lineTo(x, h * o.base - (y / n) * o.amp * h);
+        }
+        p.lineTo(w, h); p.closePath();
+        c.fillStyle = o.color; c.fill(p);
+        if (o.cap) { c.save(); c.clip(p); c.fillStyle = o.capColor || "#f4f1ea"; c.fillRect(0, 0, w, h * o.cap); c.restore(); }
+        return p;
+      },
+      cone: function (cx, base, cw, ch, color, cap) {
+        var p = new Path2D(), X = cx * w, B = base * h, W = cw * w, H = ch * h;
+        p.moveTo(X - W / 2, B);
+        p.quadraticCurveTo(X - W * .12, B - H * .82, X - W * .05, B - H);
+        p.lineTo(X + W * .05, B - H);
+        p.quadraticCurveTo(X + W * .12, B - H * .82, X + W / 2, B);
+        p.closePath(); c.fillStyle = color; c.fill(p);
+        if (cap) { c.save(); c.clip(p); c.fillStyle = cap; c.fillRect(0, 0, w, B - H * .7); c.restore(); }
+      },
+      sea: function (top, a, b) {
+        var g = c.createLinearGradient(0, top * h, 0, h);
+        g.addColorStop(0, a); g.addColorStop(1, b);
+        c.fillStyle = g; c.fillRect(0, top * h, w, h);
+      },
+      glitter: function (x, top, color) {
+        c.fillStyle = color;
+        for (var i = 0; i < 40; i++) {
+          var y = top * h + Math.pow(r(), 1.4) * (h - top * h), spread = (y - top * h) * .35 + w * .03;
+          var lx = x * w + (r() - .5) * spread * 2, lw = (r() * .06 + .01) * w;
+          c.fillRect(lx - lw / 2, y, lw, Math.max(1, h * .003));
+        }
+      },
+      mist: function (y, hgt, color) {
+        var g = c.createLinearGradient(0, (y - hgt) * h, 0, (y + hgt) * h);
+        g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(.5, color); g.addColorStop(1, "rgba(0,0,0,0)");
+        c.fillStyle = g; c.fillRect(0, (y - hgt) * h, w, hgt * 2 * h);
+      },
+      grain: function () {
+        var n = Math.min(26000, (w * h) / 26);
+        for (var i = 0; i < n; i++) {
+          c.fillStyle = r() < .5 ? "rgba(255,255,255,.05)" : "rgba(0,0,0,.06)";
+          c.fillRect(r() * w, r() * h, 1, 1);
+        }
+      }
+    };
+    return api;
+  }
+
+  var scenes = {
+    dawn: function (p, w, h, c) {
+      p.sky([[0, "#08142a"], [.42, "#1f2f55"], [.7, "#9b6a62"], [.86, "#e6a46c"], [1, "#f3cf8c"]]);
+      p.stars(260, .55, .9);
+      p.sun(.72, .8, .045, "#fde7b0", "rgba(253,214,150,.35)");
+      p.ridge({ base: .74, amp: .26, freq: 1.2, sharp: true, color: "#47527a" });
+      p.mist(.72, .06, "rgba(240,200,170,.25)");
+      p.ridge({ base: .84, amp: .24, freq: .9, sharp: true, color: "#2a3456" });
+      p.ridge({ base: .95, amp: .2, freq: .7, sharp: true, color: "#161e36" });
+      p.ridge({ base: 1.04, amp: .14, freq: .5, color: "#0a1020" });
+      var g = c.createLinearGradient(0, 0, w, 0);
+      g.addColorStop(0, "rgba(6,12,22,.72)"); g.addColorStop(.62, "rgba(6,12,22,.15)"); g.addColorStop(1, "rgba(6,12,22,0)");
+      c.fillStyle = g; c.fillRect(0, 0, w, h);
+    },
+    galapagos: function (p) {
+      p.sky([[0, "#7fc0c6"], [.5, "#d6e2c4"], [.62, "#f5d8a0"]]);
+      p.sun(.3, .5, .07, "#fff3d0", "rgba(255,240,200,.45)");
+      p.sea(.62, "#3a9597", "#0f4b5b");
+      p.glitter(.3, .63, "rgba(255,240,205,.55)");
+      p.cone(.66, .625, .62, .2, "#2e3d3c");
+      p.cone(.9, .625, .32, .1, "#43534f");
+      p.ridge({ base: 1.02, amp: .16, freq: .6, color: "#1c2b2c" });
+    },
+    andes: function (p) {
+      p.sky([[0, "#86a9b8"], [.5, "#e5dcb6"], [.7, "#f0e6c4"]]);
+      p.sun(.24, .3, .05, "#fff6dc", "rgba(255,246,220,.5)");
+      p.ridge({ base: .6, amp: .26, freq: 1.4, sharp: true, color: "#9db0a2" });
+      p.ridge({ base: .74, amp: .3, freq: .9, sharp: true, color: "#68876a" });
+      p.mist(.7, .05, "rgba(250,246,230,.5)");
+      p.cone(.7, .82, .26, .5, "#35573f");
+      p.ridge({ base: .9, amp: .14, freq: .8, color: "#2a4632" });
+      p.ridge({ base: 1.02, amp: .1, freq: .6, color: "#172a1d" });
+    },
+    japan: function (p) {
+      p.sky([[0, "#f2e4d4"], [1, "#e7b39c"]]);
+      p.sun(.5, .33, .2, "#c2342b");
+      p.cone(.5, .8, 1.05, .34, "#3b4a6c", "#f3eee6");
+      p.ridge({ base: .88, amp: .1, freq: 1.1, sharp: true, color: "#25324f" });
+      p.ridge({ base: 1.01, amp: .1, freq: .8, color: "#121a2e" });
+    },
+    alps: function (p) {
+      p.sky([[0, "#a9c6db"], [.6, "#eef2f3"]]);
+      p.ridge({ base: .56, amp: .34, freq: 1.7, sharp: true, color: "#6f8ba6", cap: .4, capColor: "#f5f7f8" });
+      p.ridge({ base: .64, amp: .24, freq: 1.3, sharp: true, color: "#4b6682", cap: .5, capColor: "#e7edf2" });
+      p.sea(.64, "#6f93b0", "#24425c");
+      p.glitter(.55, .65, "rgba(240,246,250,.35)");
+      p.ridge({ base: 1.03, amp: .12, freq: .7, color: "#1b2e40" });
+    },
+    italy: function (p, w, h, c) {
+      p.sky([[0, "#e39a55"], [.65, "#f6d9a0"]]);
+      p.sun(.28, .56, .08, "#fff0cb", "rgba(255,240,200,.4)");
+      p.ridge({ base: .74, amp: .1, freq: .8, color: "#c47e4c" });
+      c.fillStyle = "#6a3a29";
+      var by = .74 * h;
+      c.beginPath(); c.arc(.56 * w, by - .07 * h, .07 * w, Math.PI, 0); c.fill();
+      c.fillRect(.49 * w, by - .07 * h, .14 * w, .07 * h);
+      c.fillRect(.553 * w, by - .17 * h, .014 * w, .04 * h);
+      c.fillRect(.7 * w, by - .22 * h, .03 * w, .22 * h);
+      c.fillRect(.4 * w, by - .05 * h, .09 * w, .05 * h);
+      c.fillRect(.63 * w, by - .04 * h, .16 * w, .04 * h);
+      p.ridge({ base: .92, amp: .14, freq: .7, color: "#4c2b22" });
+      c.fillStyle = "#2a1712";
+      [.12, .17, .86].forEach(function (x, i) {
+        var hh = (.2 + i * .03) * h;
+        c.beginPath(); c.ellipse(x * w, .86 * h - hh / 2, .018 * w, hh / 2, 0, 0, 7); c.fill();
+      });
+    },
+    hawaii: function (p) {
+      p.sky([[0, "#3b2b69"], [.42, "#d4567a"], [.66, "#f6a35c"]]);
+      p.sun(.62, .64, .075, "#ffe2a4", "rgba(255,200,140,.35)");
+      p.sea(.66, "#3e366f", "#141737");
+      p.glitter(.62, .67, "rgba(255,210,150,.6)");
+      p.cone(.18, .665, .7, .24, "#1e1638");
+      p.ridge({ base: 1.03, amp: .08, freq: .5, color: "#0e0b22" });
+    },
+    night: function (p, w, h, c) {
+      p.sky([[0, "#040a16"], [.7, "#0e1f3d"], [1, "#2a3b63"]]);
+      p.stars(420, .9, 1);
+      var g = c.createRadialGradient(w * .5, h * 1.6, h * .7, w * .5, h * 1.6, h * 1.25);
+      g.addColorStop(0, "rgba(241,209,143,.35)"); g.addColorStop(1, "rgba(241,209,143,0)");
+      c.fillStyle = g; c.fillRect(0, 0, w, h);
+      p.ridge({ base: 1.01, amp: .12, freq: .8, sharp: true, color: "#050a14" });
+    }
+  };
+
+  var seeds = { dawn: 7, galapagos: 11, andes: 23, japan: 5, alps: 41, italy: 3, hawaii: 19, night: 29 };
+
+  function draw(cv) {
+    var rect = cv.getBoundingClientRect();
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = Math.max(1, Math.round(rect.width * dpr)), h = Math.max(1, Math.round(rect.height * dpr));
+    if (cv.width === w && cv.height === h) return;
+    cv.width = w; cv.height = h;
+    var c = cv.getContext("2d"), name = cv.dataset.scene, r = rng(seeds[name] || 1);
+    var p = P(c, w, h, r);
+    (scenes[name] || scenes.night)(p, w, h, c);
+    p.grain();
+  }
+
+  var canvases = Array.prototype.slice.call(document.querySelectorAll("canvas.art"));
+  canvases.forEach(draw);
+  if ("ResizeObserver" in window) {
+    var ro = new ResizeObserver(function (entries) { entries.forEach(function (e) { draw(e.target); }); });
+    canvases.forEach(function (cv) { ro.observe(cv); });
+  }
+
+  var form = document.getElementById("join-form");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    form.innerHTML = '<p class="done">Thank you. We’ll be in touch soon.</p>';
+  });
+})();
+</script>
+
+</body>
+</html>
